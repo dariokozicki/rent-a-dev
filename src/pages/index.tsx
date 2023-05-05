@@ -4,6 +4,7 @@ import Head from "next/head";
 import { RouterOutputs, api } from "~/utils/api";
 import TimeAgo from "timeago-react";
 import Image from "next/image";
+import { LoadingPage } from "~/components/loading";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
@@ -58,8 +59,23 @@ const PostView = (props: PostWithUser) => {
   );
 };
 
+const Feed = () => {
+  const { data, isLoading: postsLoading } = api.posts.getAll.useQuery();
+
+  if (postsLoading) return <LoadingPage />;
+
+  return (
+    <div className="flex flex-col">
+      {data?.map((fullPost) => (
+        <PostView {...fullPost} key={fullPost.post.id} />
+      ))}
+    </div>
+  );
+};
+
 const Home: NextPage = () => {
-  const { data } = api.posts.getAll.useQuery();
+  //fetch early
+  api.posts.getAll.useQuery();
 
   return (
     <>
@@ -81,11 +97,7 @@ const Home: NextPage = () => {
               <SignInButton />
             </SignedOut>
           </div>
-          <div className="flex flex-col">
-            {data?.map((fullPost) => (
-              <PostView {...fullPost} key={fullPost.post.id} />
-            ))}
-          </div>
+          <Feed />
         </div>
       </main>
     </>
