@@ -10,7 +10,14 @@ import { api } from "~/utils/api";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
-  const { mutate: createPost } = api.posts.create.useMutation();
+  const ctx = api.useContext();
+  const { mutate: createPost, isLoading: isPosting } =
+    api.posts.create.useMutation({
+      onSuccess: async () => {
+        await ctx.posts.invalidate();
+        setContent("");
+      },
+    });
   const [content, setContent] = useState("");
   if (!user) return null;
 
@@ -28,8 +35,14 @@ const CreatePostWizard = () => {
         className="grow bg-transparent outline-none"
         value={content}
         onChange={(e) => setContent(e.target.value)}
+        disabled={isPosting}
       />
-      <button onClick={() => createPost({ content })}>Post</button>
+      <button
+        disabled={isPosting || !content.length}
+        onClick={() => createPost({ content })}
+      >
+        Post
+      </button>
     </div>
   );
 };
