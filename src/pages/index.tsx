@@ -2,6 +2,7 @@ import { SignInButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
+import { useState } from "react";
 import TimeAgo from "timeago-react";
 import { LoadingPage } from "~/components/loading";
 import type { RouterOutputs } from "~/utils/api";
@@ -9,6 +10,8 @@ import { api } from "~/utils/api";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
+  const { mutate: createPost } = api.posts.create.useMutation();
+  const [content, setContent] = useState("");
   if (!user) return null;
 
   return (
@@ -23,7 +26,10 @@ const CreatePostWizard = () => {
       <input
         placeholder="Type some emojis!"
         className="grow bg-transparent outline-none"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
       />
+      <button onClick={() => createPost({ content })}>Post</button>
     </div>
   );
 };
