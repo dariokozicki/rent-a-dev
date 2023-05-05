@@ -1,7 +1,8 @@
 import { SignInButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
-import { type NextPage } from "next";
+import type { NextPage } from "next";
 import Head from "next/head";
-import { RouterOutputs, api } from "~/utils/api";
+import { api } from "~/utils/api";
+import type { RouterOutputs } from "~/utils/api";
 import TimeAgo from "timeago-react";
 import Image from "next/image";
 import { LoadingPage } from "~/components/loading";
@@ -36,7 +37,7 @@ const PostView = (props: PostWithUser) => {
       className="flex gap-4 border-b border-slate-400 p-4 text-white"
     >
       <Image
-        alt={`@${author.username}'s profile picture`}
+        alt={`@${author.username || ""}'s profile picture`}
         width={56}
         height={56}
         src={author.profileImageUrl}
@@ -45,7 +46,7 @@ const PostView = (props: PostWithUser) => {
       <div>
         <div>
           <span>
-            {`@${author.username} · `}
+            {`@${author.username || ""} · `}
             <TimeAgo
               className="font-thin"
               datetime={post.createdAt}
