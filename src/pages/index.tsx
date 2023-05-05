@@ -2,6 +2,8 @@ import { SignInButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { RouterOutputs, api } from "~/utils/api";
+import TimeAgo from "timeago-react";
+import Image from "next/image";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
@@ -9,10 +11,12 @@ const CreatePostWizard = () => {
 
   return (
     <div className="flex w-full gap-4">
-      <img
+      <Image
         src={user.profileImageUrl}
         alt="Profile Image"
         className="h-14 w-14 rounded-full"
+        width={56}
+        height={56}
       />
       <input
         placeholder="Type some emojis!"
@@ -30,10 +34,23 @@ const PostView = (props: PostWithUser) => {
       key={post.id}
       className="flex gap-4 border-b border-slate-400 p-4 text-white"
     >
-      <img src={author.profileImageUrl} className="h-14 w-14 rounded-full" />
+      <Image
+        alt={`@${author.username}'s profile picture`}
+        width={56}
+        height={56}
+        src={author.profileImageUrl}
+        className="h-14 w-14 rounded-full"
+      />
       <div>
         <div>
-          <span>{`@${author.username} · 1 hour ago`}</span>
+          <span>
+            {`@${author.username} · `}
+            <TimeAgo
+              className="font-thin"
+              datetime={post.createdAt}
+              locale="en_US"
+            />
+          </span>
         </div>
         <span>{post.content}</span>
       </div>
