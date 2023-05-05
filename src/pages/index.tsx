@@ -1,11 +1,11 @@
 import { SignInButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { api } from "~/utils/api";
-import type { RouterOutputs } from "~/utils/api";
-import TimeAgo from "timeago-react";
 import Image from "next/image";
+import TimeAgo from "timeago-react";
 import { LoadingPage } from "~/components/loading";
+import type { RouterOutputs } from "~/utils/api";
+import { api } from "~/utils/api";
 
 const CreatePostWizard = () => {
   const { user } = useUser();
@@ -61,7 +61,10 @@ const PostView = (props: PostWithUser) => {
 };
 
 const Feed = () => {
-  const { data, isLoading: postsLoading } = api.posts.getAll.useQuery();
+  const { data, isLoading: postsLoading } = api.posts.getAll.useQuery(
+    undefined,
+    { refetchOnWindowFocus: false }
+  );
 
   if (postsLoading) return <LoadingPage />;
 
@@ -76,7 +79,7 @@ const Feed = () => {
 
 const Home: NextPage = () => {
   //fetch early
-  api.posts.getAll.useQuery();
+  api.posts.getAll.useQuery(undefined, { refetchOnWindowFocus: false });
 
   return (
     <>
