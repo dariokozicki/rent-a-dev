@@ -3,6 +3,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 import TimeAgo from "timeago-react";
 import { LoadingPage } from "~/components/loading";
 import type { RouterOutputs } from "~/utils/api";
@@ -16,6 +17,14 @@ const CreatePostWizard = () => {
       onSuccess: async () => {
         await ctx.posts.invalidate();
         setContent("");
+      },
+      onError: (e) => {
+        const errorMessage = e.data?.zodError?.fieldErrors?.content?.[0];
+        if (errorMessage) {
+          toast.error(errorMessage);
+        } else {
+          toast.error("Failed to post! Please try again later.");
+        }
       },
     });
   const [content, setContent] = useState("");
@@ -32,12 +41,19 @@ const CreatePostWizard = () => {
       />
       <input
         placeholder="Type some emojis!"
-        className="grow bg-transparent outline-none"
+        className="grow bg-transparent outline-none disabled:text-gray-400"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         disabled={isPosting}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            createPost({ content });
+          }
+        }}
       />
       <button
+        className="rounded-md bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500 via-purple-500 to-pink-500 px-6 transition-all hover:brightness-110 disabled:bg-gradient-to-r disabled:from-slate-500 disabled:to-slate-400"
         disabled={isPosting || !content.length}
         onClick={() => createPost({ content })}
       >
