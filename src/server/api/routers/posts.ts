@@ -29,6 +29,7 @@ const addUserDataToPosts = async (posts: NewType) => {
         code: "INTERNAL_SERVER_ERROR",
         message: "Author for post not found",
       });
+
     return {
       post,
       author,
