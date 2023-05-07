@@ -1,4 +1,5 @@
 import { clerkClient } from "@clerk/nextjs";
+import { type Post } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -9,7 +10,6 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { filterUserForClient } from "../helpers/mappers";
-import { type Post } from "@prisma/client";
 
 type NewType = Post[];
 
@@ -91,5 +91,17 @@ export const postsRouter = createTRPCRouter({
       });
 
       return addUserDataToPosts(posts);
+    }),
+
+  getPostById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const post = await ctx.prisma.post.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!post) throw new TRPCError({ code: "NOT_FOUND" });
+
+      return (await addUserDataToPosts([post]))[0];
     }),
 });
