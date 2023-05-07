@@ -1,8 +1,27 @@
 import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { PageLayout } from "~/components/layout";
+import { PostView } from "~/components/postview";
 import { appRouter } from "~/server/api/root";
 import { api } from "~/utils/api";
+
+const ProfileFeed = (props: { userId: string }) => {
+  const { data: fullPosts, isLoading } = api.posts.getPostsByUserId.useQuery({
+    userId: props.userId,
+  });
+
+  if (isLoading) return <LoadingPage />;
+
+  if (!fullPosts?.length) return <div>User has not posted.</div>;
+
+  return (
+    <div className="flex flex-col">
+      {fullPosts?.map((fullPost) => (
+        <PostView {...fullPost} key={fullPost.post.id} />
+      ))}
+    </div>
+  );
+};
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const { data: profile } = api.profile.getUserByUsername.useQuery({
@@ -33,15 +52,17 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
           profile.username ?? ""
         }`}</div>
         <div className="w-full border-b border-slate-400" />
+        <ProfileFeed userId={profile.id} />
       </PageLayout>
     </>
   );
 };
 
 import { createServerSideHelpers } from "@trpc/react-query/server";
-import superjson from "superjson";
-import { prisma } from "~/server/db";
 import Image from "next/image";
+import superjson from "superjson";
+import { LoadingPage } from "~/components/loading";
+import { prisma } from "~/server/db";
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const ssg = createServerSideHelpers({
